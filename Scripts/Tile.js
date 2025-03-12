@@ -7,6 +7,10 @@ export class Tile {
         this.color = this.getColor();
     }
 
+    Index() {
+        return this.gridIndex;
+    }
+
     Fall() {
         this.gridIndex.row++;
     }
@@ -39,15 +43,15 @@ export class Tile {
     draw (ctx) {
         //draw square
         ctx.fillStyle = this.getColor();
-        // im not sure why it is shifted 3 pixels to the right, maybe a margin issue. temp magic fix below.
-        ctx.fillRect(this.gridIndex.col - 3, this.gridIndex.row, this.squareSize, this.squareSize);
+        ctx.fillRect((this.gridIndex.col)*this.squareSize, (this.gridIndex.row)*this.squareSize, this.squareSize, this.squareSize);
     
         //draw number as text
         ctx.fillStyle = "#000";
         ctx.font = "30px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(this.value, this.gridIndex.col + this.squareSize / 2, this.gridIndex.col + this.squareSize / 2);
+
+        ctx.fillText(this.value, (this.gridIndex.col) * this.squareSize + this.squareSize / 2, this.gridIndex.row * this.squareSize + this.squareSize / 2);
     }
 
 }
