@@ -1,13 +1,24 @@
+
 export class Grid {
 
     constructor(rows, cols, squareSize) {
         this.rows = rows;
         this.cols = cols;
         this.squareSize = squareSize;
-        this.grid = [[]]
+        this.grid = this.create(rows,cols);
+    }
+
+    create (rows, cols) {
+        return new Array(rows).fill(null).map(() => new Array(cols).fill(null));
+    }
+
+    IsOccupied(gridIndex) {
+        return this.grid[gridIndex.row][gridIndex.col] !== null;
     }
 
     draw (ctx) {
+
+        // BACKGROUND - - -
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
                 if(col % 2 == 0)
@@ -18,6 +29,7 @@ export class Grid {
                 ctx.fillRect(col * this.squareSize, row * this.squareSize, this.squareSize, this.squareSize);
             }
         }       
+        // - - - 
     
     }
 }
