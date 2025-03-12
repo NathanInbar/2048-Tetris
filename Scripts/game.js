@@ -48,11 +48,30 @@ function start() {
 
 function update() {
 
+    let activeIndex = activeTile.Index();
     //check if active tile hits the bottom. if so, set it and spawn a new one.
-    if(activeTile.Index().row == nRows-1)
+    if(activeIndex.row == nRows-1)
     {
         grid.SetTile(activeTile);
-        SpawnTile(2)
+        SpawnTile()
+        return;
+    }
+
+    let indexBelowActive = new GridIndex(activeIndex.row+1,activeIndex.col);
+    let tileBelowActive = grid.GetTile(indexBelowActive);
+    //if there is a tile below this one either combine it or set the active tile on top of it
+    if(tileBelowActive !== null)
+    {
+        // if the value is the same as the active, combine it.
+        if(tileBelowActive.value == activeTile.value) {
+            tileBelowActive.value *= 2;
+            SpawnTile();
+            return;
+        }
+        
+        // otherwise set on top
+        grid.SetTile(activeTile);
+        SpawnTile()
         return;
     }
 
@@ -73,7 +92,7 @@ function draw() {
 
 // - - - - - - 
 
-function SpawnTile(value) {
+function SpawnTile() {
 
     //check if there is a tile in the center-top grid cell. if there is, game over
     let top_center = new GridIndex(0, Math.floor(nCols/2));
@@ -82,7 +101,9 @@ function SpawnTile(value) {
         isGameOver = true;
         return;
     }
-    
+
+    let value = 2;
+
     //spawn active tile, assign it a value
     activeTile = new Tile(top_center, value, squareSize);
     

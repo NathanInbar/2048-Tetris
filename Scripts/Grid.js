@@ -21,6 +21,9 @@ export class Grid {
         this.grid[i.row][i.col] = tile;
     }
 
+    GetTile(index) {
+        return this.grid[index.row][index.col];
+    }
 
     draw (ctx) {
 
