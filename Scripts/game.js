@@ -35,6 +35,10 @@ game flow:
     - RMB to move column right one (col --)
 */
 
+document.addEventListener('keydown', function(event) {
+    OnKeyPressed(event.key);
+});
+
 let debugTile = new Tile(new GridIndex(0,Math.floor(nCols/2)), 0, squareSize);
 
 function start() {
@@ -46,10 +50,11 @@ function update() {
 
     //check if active tile hits the bottom. if so, set it and spawn a new one.
     if(activeTile.Index().row == nRows-1)
-       {
-            SpawnTile(2)
-            return;
-       }
+    {
+        grid.SetTile(activeTile);
+        SpawnTile(2)
+        return;
+    }
 
     activeTile.Fall();
 
@@ -81,6 +86,18 @@ function SpawnTile(value) {
     //spawn active tile, assign it a value
     activeTile = new Tile(top_center, value, squareSize);
     
+}
+
+function OnKeyPressed(key)
+{
+    if(activeTile === null)
+        return;
+
+    if(key == "ArrowLeft")
+        activeTile.ShiftLeft();
+
+    if (key == "ArrowRight")
+        activeTile.ShiftRight();
 }
 
 // - - - - - - 

@@ -16,6 +16,12 @@ export class Grid {
         return this.grid[gridIndex.row][gridIndex.col] !== null;
     }
 
+    SetTile(tile) {
+        let i = tile.Index();
+        this.grid[i.row][i.col] = tile;
+    }
+
+
     draw (ctx) {
 
         // BACKGROUND - - -
@@ -30,6 +36,16 @@ export class Grid {
             }
         }       
         // - - - 
+
+        // Draw tiles
+        for( let row = 0; row < this.rows; row++) {
+            for(let col = 0; col < this.cols; col++) {
+                if(this.grid[row][col] === null)
+                    continue;
+
+                this.grid[row][col].draw(ctx);
+            }
+        }
     
     }
 }
