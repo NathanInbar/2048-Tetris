@@ -48,6 +48,9 @@ function start() {
 
 function update() {
 
+    if(isGameOver)
+        return;
+
     let activeIndex = activeTile.Index();
     //check if active tile hits the bottom. if so, set it and spawn a new one.
     if(activeIndex.row == nRows-1)
@@ -65,6 +68,9 @@ function update() {
         // if the value is the same as the active, combine it.
         if(tileBelowActive.value == activeTile.value) {
             tileBelowActive.value *= 2;
+            //start cascading tiles
+            grid.Cascade(tileBelowActive);
+
             SpawnTile();
             return;
         }
