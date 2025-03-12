@@ -10,13 +10,13 @@ canvas.width = 420;
 canvas.height = 420;
 
 // grid options
-const rows = 7
-const cols = 7
+const nRows = 7
+const nCols = 7
 const squareSize = 60;
 
 let isGameOver = false;
 
-let grid = new Grid(rows, cols, squareSize);
+let grid = new Grid(nRows, nCols, squareSize);
 
 let activeTile = null;
 
@@ -35,14 +35,25 @@ game flow:
     - RMB to move column right one (col --)
 */
 
-
+let debugTile = new Tile(new GridIndex(0,Math.floor(nCols/2)), 0, squareSize);
 
 function start() {
-    trySpawnTile(grid);
+    SpawnTile(2);
+    draw();
 }
 
 function update() {
 
+    //check if active tile hits the bottom. if so, set it and spawn a new one.
+    if(activeTile.Index().row == nRows-1)
+       {
+            SpawnTile(2)
+            return;
+       }
+
+    activeTile.Fall();
+
+    draw();
 }
 
 function draw() {
@@ -57,26 +68,21 @@ function draw() {
 
 // - - - - - - 
 
-function trySpawnTile(grid) {
-    /*
-    - check if there is a tile in the center-top grid cell
-        - if there is, game over
-    - else spawn an active tile, assign it a value
-    */
-        let top_center = new GridIndex(0, Math.floor(cols/2));
-        // check center-top grid cell
-        if(grid.IsOccupied(top_center))
-        {
-            isGameOver = true;
-            return;
-        }
-        
-        //spawn active tile, assign it a value
-        activeTile = new Tile(top_center, 2, squareSize);
+function SpawnTile(value) {
+
+    //check if there is a tile in the center-top grid cell. if there is, game over
+    let top_center = new GridIndex(0, Math.floor(nCols/2));
+    if(grid.IsOccupied(top_center))
+    {
+        isGameOver = true;
+        return;
+    }
+    
+    //spawn active tile, assign it a value
+    activeTile = new Tile(top_center, value, squareSize);
     
 }
-// - - - - - - 
 
+// - - - - - - 
 start();
 setInterval(update, 1000); // run update once per second
-draw();
