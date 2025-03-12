@@ -25,6 +25,19 @@ export class Grid {
         return this.grid[index.row][index.col];
     }
 
+    Cascade(index) {
+        // todo --
+        /*
+            check neighbors.
+            if neighbor has same value
+                - neighbor value *= 2
+                - call Cascade(neighbor)
+                - call tile.fall?
+                    - issue where a tile that falls into a cascadable place doesnt know to cascade
+                    - resolved if tile does cascade after falling (if fall is successful)
+        */
+    }
+
     draw (ctx) {
 
         // BACKGROUND - - -
