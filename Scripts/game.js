@@ -19,7 +19,7 @@ function draw() {
 
     grid.draw(ctx);
 
-    let startTile = new Tile(1,1,2);
+    let startTile = new Tile(1,1,2, squareSize);
     startTile.draw(ctx, squareSize);
 
     requestAnimationFrame(draw);

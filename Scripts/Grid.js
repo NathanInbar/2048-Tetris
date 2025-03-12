@@ -8,14 +8,14 @@ export class Grid {
     }
 
     draw (ctx) {
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
+        for (let row = 0; row < this.rows; row++) {
+            for (let col = 0; col < this.cols; col++) {
                 if(col % 2 == 0)
                     ctx.fillStyle = "#ddd"; // Light gray background
                 else 
                     ctx.fillStyle = "#e0e0"; // dark gray background
                 
-                ctx.fillRect(col * squareSize, row * squareSize, squareSize, squareSize);
+                ctx.fillRect(col * this.squareSize, row * this.squareSize, this.squareSize, this.squareSize);
             }
         }       
     
