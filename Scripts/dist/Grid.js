@@ -1,45 +1,61 @@
+import { Direction } from "./Direction";
 export class Grid {
     constructor(rows, cols, squareSize) {
         this.rows = rows;
         this.cols = cols;
         this.squareSize = squareSize;
-        this.grid = this.create(rows, cols);
+        this.grid = this._create(rows, cols);
     }
-    create(rows, cols) {
+    _create(rows, cols) {
         return new Array(rows).fill(null).map(() => new Array(cols).fill(null));
     }
-    IsOccupied(gridIndex) {
-        return this.grid[gridIndex.row][gridIndex.col] !== null;
-    }
-    MakeFall(tile) {
-        tile.gridIndex.row++;
-    }
-    ShiftLeft(tile) {
-        let idx = tile.gridIndex;
-        //check if the tile can move to the left
-        if (idx.col == 0 || this.grid[idx.col - 1][idx.row] != null)
-            return;
-        //move the tile in the grid 
-        this.grid[idx.col][idx.row] = null;
-        idx.col--;
-        this.grid[idx.col][idx.row] = tile;
-    }
-    ShiftRight(tile) {
-        let idx = tile.gridIndex;
-        //check if the tile can move to the left
-        if (idx.col == this.cols - 1 || this.grid[idx.col + 1][idx.row] != null)
-            return;
-        //move the tile in the grid 
-        this.grid[idx.col][idx.row] = null;
-        idx.col++;
-        this.grid[idx.col][idx.row] = tile;
-    }
-    SetTile(tile) {
-        let i = tile.Index();
-        this.grid[i.row][i.col] = tile;
+    IsOccupied(col, row) {
+        return this.grid[col][row] !== null;
     }
     GetTile(index) {
         return this.grid[index.row][index.col];
+    }
+    TryShiftTile(tile, direction) {
+        let idx = tile.Index();
+        let dx = 0;
+        let dy = 0;
+        let isShiftInvalid = () => true;
+        switch (direction) {
+            case Direction.DOWN:
+                dx = 0;
+                dy = 1;
+                isShiftInvalid = () => idx.row == this.rows - 1 || this.IsOccupied(idx.col, idx.row + 1);
+                break;
+            case Direction.LEFT:
+                dx = -1;
+                dy = 0;
+                isShiftInvalid = () => idx.col == 0 || this.IsOccupied(idx.col - 1, idx.row);
+                break;
+            case Direction.RIGHT:
+                dx = 1;
+                dy = 0;
+                isShiftInvalid = () => idx.col == this.cols - 1 || this.IsOccupied(idx.col + 1, idx.row);
+                break;
+            default:
+                throw new Error("uncaught case " + direction + " for TryShiftTile");
+        }
+        if (isShiftInvalid())
+            return false;
+        this._shiftTile(dx, dy, tile);
+        return true;
+    }
+    _shiftTile(dx, dy, tile) {
+        let idx = tile.gridIndex;
+        //move the tile in the grid:
+        this.Remove(idx.col, idx.row); //clear current pos
+        let new_idx = idx.move(dx, dy);
+        this.Set(new_idx.col, new_idx.row, tile);
+    }
+    Remove(col, row) {
+        this.grid[col][row] = null;
+    }
+    Set(col, row, tile) {
+        this.grid[col][row] = tile;
     }
     Cascade(tile) {
         // todo --

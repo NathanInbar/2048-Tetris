@@ -1,9 +1,13 @@
 export class GridIndex {
-    row: number;
-    col: number;
+    readonly row: number;
+    readonly col: number;
     
     constructor(row:number,col:number) {
         this.row = row;
         this.col = col;
+    }
+
+    move(dx:number, dy:number): GridIndex {
+        return new GridIndex(this.col + dx,this.row + dy);
     }
 }
