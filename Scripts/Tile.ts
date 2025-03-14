@@ -1,30 +1,32 @@
+import { GridIndex } from "./GridIndex.js";
 
 export class Tile {
-    constructor(gridIndex, value, squareSize) {
+    gridIndex: GridIndex;
+    value: number;
+    squareSize: number;
+    color: string;
+
+    constructor(gridIndex: GridIndex, value: number, squareSize: number) {
         this.gridIndex = gridIndex;
         this.value = value;
         this.squareSize = squareSize;
         this.color = this.getColor();
     }
 
-    Index() {
+    Index(): GridIndex {
         return this.gridIndex;
     }
 
-    Fall() {
-        this.gridIndex.row++;
-    }
+    // ShiftLeft() {
+    //     this.gridIndex.col--;
+    // }
 
-    ShiftLeft() {
-        this.gridIndex.col--;
-    }
+    // ShiftRight() {
+    //     this.gridIndex.col++;
+    // }
 
-    ShiftRight() {
-        this.gridIndex.col++;
-    }
-
-    getColor() {
-        const colors = {
+    getColor(): string {
+        const colors : {[key:number]:string}= { 
             2: "#eee4da",
             4: "#ede0c8",
             8: "#f2b179",
@@ -40,7 +42,7 @@ export class Tile {
         return colors[this.value] || "#ccc"; // Default color if not in the map
     }
     
-    draw (ctx) {
+    draw (ctx:CanvasRenderingContext2D): void {
         //draw square
         ctx.fillStyle = this.getColor();
         ctx.fillRect((this.gridIndex.col)*this.squareSize, (this.gridIndex.row)*this.squareSize, this.squareSize, this.squareSize);
@@ -51,7 +53,7 @@ export class Tile {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        ctx.fillText(this.value, (this.gridIndex.col) * this.squareSize + this.squareSize / 2, this.gridIndex.row * this.squareSize + this.squareSize / 2);
+        ctx.fillText(this.value.toString(), (this.gridIndex.col) * this.squareSize + this.squareSize / 2, this.gridIndex.row * this.squareSize + this.squareSize / 2);
     }
 
 }

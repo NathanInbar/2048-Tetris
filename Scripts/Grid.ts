@@ -1,31 +1,67 @@
+import { Tile } from "./Tile";
+import { GridIndex } from "./GridIndex";
 
 export class Grid {
+    rows: number;
+    cols: number;
+    squareSize: number;
+    grid: (Tile|null)[][];
 
-    constructor(rows, cols, squareSize) {
+    constructor(rows:number, cols:number, squareSize:number) {
         this.rows = rows;
         this.cols = cols;
         this.squareSize = squareSize;
         this.grid = this.create(rows,cols);
     }
 
-    create (rows, cols) {
+    create (rows:number, cols:number): null[][] {
         return new Array(rows).fill(null).map(() => new Array(cols).fill(null));
     }
 
-    IsOccupied(gridIndex) {
+    IsOccupied(gridIndex:GridIndex): boolean {
         return this.grid[gridIndex.row][gridIndex.col] !== null;
     }
 
-    SetTile(tile) {
+    MakeFall(tile:Tile): void {
+        tile.gridIndex.row++;
+    }
+
+    ShiftLeft(tile:Tile) : void {
+        let idx:GridIndex = tile.gridIndex;
+
+        //check if the tile can move to the left
+        if(idx.col==0 || this.grid[idx.col-1][idx.row]!=null)
+            return;
+
+        //move the tile in the grid 
+        this.grid[idx.col][idx.row] = null;
+        idx.col--;
+        this.grid[idx.col][idx.row] = tile;
+    }
+
+    ShiftRight(tile:Tile) : void {
+        let idx:GridIndex = tile.gridIndex;
+
+        //check if the tile can move to the left
+        if(idx.col==this.cols-1 || this.grid[idx.col+1][idx.row]!=null)
+            return;
+
+        //move the tile in the grid 
+        this.grid[idx.col][idx.row] = null;
+        idx.col++;
+        this.grid[idx.col][idx.row] = tile;
+    }
+
+    SetTile(tile:Tile): void {
         let i = tile.Index();
         this.grid[i.row][i.col] = tile;
     }
 
-    GetTile(index) {
+    GetTile(index:GridIndex): Tile|null {
         return this.grid[index.row][index.col];
     }
 
-    Cascade(index) {
+    Cascade(tile:Tile): void {
         // todo --
         /*
             check neighbors.
@@ -38,7 +74,7 @@ export class Grid {
         */
     }
 
-    draw (ctx) {
+    draw (ctx: CanvasRenderingContext2D): void {
 
         // BACKGROUND - - -
         for (let row = 0; row < this.rows; row++) {
@@ -59,7 +95,7 @@ export class Grid {
                 if(this.grid[row][col] === null)
                     continue;
 
-                this.grid[row][col].draw(ctx);
+                this.grid[row][col]!.draw(ctx);
             }
         }
     
