@@ -2,8 +2,14 @@ import { Tile } from './Tile.js';
 import { Grid } from './Grid.js';
 import { GridIndex } from './GridIndex.js';
 
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const _canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
+if(!_canvas)
+    throw new Error("canvas not found");
+const canvas: HTMLCanvasElement = _canvas;
+const _ctx = canvas.getContext("2d");
+if(!_ctx)
+    throw new Error("context is null");
+const ctx: CanvasRenderingContext2D = _ctx;
 
 // Set canvas size
 canvas.width = 420;
@@ -18,7 +24,7 @@ let isGameOver = false;
 
 let grid = new Grid(nRows, nCols, squareSize);
 
-let activeTile = null;
+let activeTile:Tile|null = null;
 
 /*
 game flow:
@@ -42,13 +48,16 @@ document.addEventListener('keydown', function(event) {
 let debugTile = new Tile(new GridIndex(0,Math.floor(nCols/2)), 0, squareSize);
 
 function start() {
-    SpawnTile(2);
+    SpawnTile();
     draw();
 }
 
 function update() {
 
     if(isGameOver)
+        return;
+
+    if(!activeTile)
         return;
 
     let activeIndex = activeTile.Index();
@@ -60,8 +69,9 @@ function update() {
         return;
     }
 
-    let indexBelowActive = new GridIndex(activeIndex.row+1,activeIndex.col);
-    let tileBelowActive = grid.GetTile(indexBelowActive);
+    let indexBelowActive:GridIndex = new GridIndex(activeIndex.row+1,activeIndex.col);
+    let tileBelowActive:Tile|null = grid.GetTile(indexBelowActive);
+
     //if there is a tile below this one either combine it or set the active tile on top of it
     if(tileBelowActive !== null)
     {
@@ -81,7 +91,7 @@ function update() {
         return;
     }
 
-    activeTile.Fall();
+    grid.MakeFall(activeTile);
 
     draw();
 }
@@ -90,7 +100,9 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     grid.draw(ctx);
-    activeTile.draw(ctx, squareSize);
+    
+    if(activeTile)
+        activeTile.draw(ctx);
 
     requestAnimationFrame(draw);
 }
@@ -115,16 +127,16 @@ function SpawnTile() {
     
 }
 
-function OnKeyPressed(key)
+function OnKeyPressed(key:string)
 {
     if(activeTile === null)
         return;
 
     if(key == "ArrowLeft")
-        activeTile.ShiftLeft();
+        grid.ShiftLeft(activeTile);
 
     if (key == "ArrowRight")
-        activeTile.ShiftRight();
+        grid.ShiftRight(activeTile);
 }
 
 // - - - - - - 
