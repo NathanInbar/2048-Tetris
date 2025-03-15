@@ -1,4 +1,5 @@
-import { Direction } from "./Direction";
+import { GridIndex } from "./GridIndex.js";
+import { Direction } from "./Direction.js";
 export class Grid {
     constructor(rows, cols, squareSize) {
         this.rows = rows;
@@ -39,8 +40,10 @@ export class Grid {
             default:
                 throw new Error("uncaught case " + direction + " for TryShiftTile");
         }
-        if (isShiftInvalid())
+        if (isShiftInvalid()) {
+            console.log("cant shift");
             return false;
+        }
         this._shiftTile(dx, dy, tile);
         return true;
     }
@@ -55,6 +58,7 @@ export class Grid {
         this.grid[col][row] = null;
     }
     Set(col, row, tile) {
+        tile.gridIndex = new GridIndex(row, col);
         this.grid[col][row] = tile;
     }
     Cascade(tile) {

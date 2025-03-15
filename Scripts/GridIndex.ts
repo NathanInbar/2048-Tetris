@@ -8,6 +8,6 @@ export class GridIndex {
     }
 
     move(dx:number, dy:number): GridIndex {
-        return new GridIndex(this.col + dx,this.row + dy);
+        return new GridIndex(this.row + dy,this.col + dx);
     }
 }
