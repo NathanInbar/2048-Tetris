@@ -1,31 +1,32 @@
-import { GridIndex } from "./GridIndex.js";
+import { Globals } from "./Globals.js";
 
 export class Tile {
-    gridIndex: GridIndex;
+    x:number;
+    y:number;
     value: number;
-    squareSize: number;
-    color: string;
+    isPlaced: boolean;
 
-    constructor(gridIndex: GridIndex, value: number, squareSize: number) {
-        this.gridIndex = gridIndex;
+    constructor(x:number, y:number, value: number) {
+        this.x=x;
+        this.y=y;
         this.value = value;
-        this.squareSize = squareSize;
-        this.color = this.getColor();
+        this.isPlaced = false;
     }
 
-    Index(): GridIndex {
-        return this.gridIndex;
+    move(dx:number, dy:number) : void {
+        this.x += dx;
+        this.y += dy;
     }
 
-    // ShiftLeft() {
-    //     this.gridIndex.col--;
-    // }
+    merge(other:Tile): boolean {
+        if(this.value === other.value){ 
+            this.value*=2;
+            return true;
+        }
+        return false;
+    }
 
-    // ShiftRight() {
-    //     this.gridIndex.col++;
-    // }
-
-    getColor(): string {
+    _getColor(): string {
         const colors : {[key:number]:string}= { 
             2: "#eee4da",
             4: "#ede0c8",
@@ -44,8 +45,8 @@ export class Tile {
     
     draw (ctx:CanvasRenderingContext2D): void {
         //draw square
-        ctx.fillStyle = this.getColor();
-        ctx.fillRect((this.gridIndex.col)*this.squareSize, (this.gridIndex.row)*this.squareSize, this.squareSize, this.squareSize);
+        ctx.fillStyle = this._getColor();
+        ctx.fillRect((this.x)*Globals.squareSize, (this.x)*Globals.squareSize, Globals.squareSize, Globals.squareSize);
     
         //draw number as text
         ctx.fillStyle = "#000";
@@ -53,7 +54,7 @@ export class Tile {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        ctx.fillText(this.value.toString(), (this.gridIndex.col) * this.squareSize + this.squareSize / 2, this.gridIndex.row * this.squareSize + this.squareSize / 2);
+        ctx.fillText(this.value.toString(), (this.x) * Globals.squareSize + Globals.squareSize / 2, this.y * Globals.squareSize + Globals.squareSize / 2);
     }
 
 }
