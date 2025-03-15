@@ -2,6 +2,7 @@ import { Tile } from './Tile.js';
 import { Grid } from './Grid.js';
 import { GridIndex } from './GridIndex.js';
 import { Direction } from './Direction.js';
+import { TileShiftResult } from './TileShiftResult.js';
 
 const _canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 if(!_canvas)
@@ -64,9 +65,9 @@ function update() {
         return;
     }
 
-    let tryFallResult:boolean = grid.TryShiftTile(activeTile, Direction.DOWN);
+    let tryFallResult:TileShiftResult = grid.TryShiftTile(activeTile, Direction.DOWN);
 
-    if(!tryFallResult)
+    if(tryFallResult == TileShiftResult.SUCCESS_MERGED || tryFallResult == TileShiftResult.FAIL_OUTOFBOUNDS)
         SpawnTile();
 
     // if(!activeTile)

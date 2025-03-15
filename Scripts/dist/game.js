@@ -2,6 +2,7 @@ import { Tile } from './Tile.js';
 import { Grid } from './Grid.js';
 import { GridIndex } from './GridIndex.js';
 import { Direction } from './Direction.js';
+import { TileShiftResult } from './TileShiftResult.js';
 const _canvas = document.getElementById("gameCanvas");
 if (!_canvas)
     throw new Error("canvas not found");
@@ -50,7 +51,7 @@ function update() {
         return;
     }
     let tryFallResult = grid.TryShiftTile(activeTile, Direction.DOWN);
-    if (!tryFallResult)
+    if (tryFallResult == TileShiftResult.SUCCESS_MERGED || tryFallResult == TileShiftResult.FAIL_OUTOFBOUNDS)
         SpawnTile();
     // if(!activeTile)
     //     return;
