@@ -4,6 +4,6 @@ export class GridIndex {
         this.col = col;
     }
     move(dx, dy) {
-        return new GridIndex(this.col + dx, this.row + dy);
+        return new GridIndex(this.row + dy, this.col + dx);
     }
 }

@@ -1,6 +1,6 @@
-import { Tile } from "./Tile";
-import { GridIndex } from "./GridIndex";
-import { Direction } from "./Direction";
+import { Tile } from "./Tile.js";
+import { GridIndex } from "./GridIndex.js";
+import { Direction } from "./Direction.js";
 
 export class Grid {
     rows: number;
@@ -55,7 +55,10 @@ export class Grid {
         }
 
         if(isShiftInvalid())
+        {
+            console.log("cant shift");
             return false;
+        }
 
         this._shiftTile(dx,dy,tile);
         
@@ -64,7 +67,6 @@ export class Grid {
 
     _shiftTile(dx:number, dy:number, tile:Tile) : void {
         let idx:GridIndex = tile.gridIndex;
-
         //move the tile in the grid:
         this.Remove(idx.col, idx.row) //clear current pos
         let new_idx = idx.move(dx,dy);
@@ -76,6 +78,7 @@ export class Grid {
     }
 
     Set(col:number, row:number, tile:Tile) : void {
+        tile.gridIndex = new GridIndex(row,col);
         this.grid[col][row] = tile;
     }
 

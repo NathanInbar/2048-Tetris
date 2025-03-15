@@ -58,6 +58,17 @@ function update() {
     if(isGameOver)
         return;
 
+    if(activeTile == null)
+    {
+        console.log("active tile is null");
+        return;
+    }
+
+    let tryFallResult:boolean = grid.TryShiftTile(activeTile, Direction.DOWN);
+
+    if(!tryFallResult)
+        SpawnTile();
+
     // if(!activeTile)
     //     return;
 
@@ -118,6 +129,7 @@ function SpawnTile() {
     if(grid.IsOccupied(top_center.col, top_center.row))
     {
         isGameOver = true;
+        console.log("Game over");
         return;
     }
 
@@ -125,11 +137,14 @@ function SpawnTile() {
 
     //spawn active tile, assign it a value
     activeTile = new Tile(top_center, value, squareSize);
+    grid.Set(top_center.col,top_center.row,activeTile);
     
 }
 
 function OnKeyPressed(key:string)
 {
+    if(isGameOver)
+        return;
     if(activeTile === null)
         return;
 
