@@ -1,6 +1,7 @@
 import { Globals } from "./Globals.js";
 import { Grid } from "./Grid.js";
 import { Tile } from "./Tile.js";
+import { TileFallResult } from "./Grid.js";
 
 export class GameManager {
 
@@ -19,38 +20,26 @@ export class GameManager {
     update() {
 
         if (this.isGameOver) return;
+        if (!this.activeTile) return;
 
-        if (this.activeTile) {
-            if (this.grid.CanMoveTile(this.activeTile, 0, 1)) {
-                this.grid.MoveTile(this.activeTile, 0, 1);
-            } else {
-                this.activeTile.isPlaced = true;
-                this.activeTile = null;
-                this.grid.Collapse();
-                this.SpawnTile();
-            }
-        }
-    
+        let fallResult:TileFallResult = this.grid.MoveTile(this.activeTile, 0, 1);
+        if(fallResult == TileFallResult.BLOCKED || fallResult == TileFallResult.MERGED)
+            this.SpawnTile();
+
         this.draw();
     }
 
     SpawnTile() {
-
-        if (this.grid.GetTile(Math.floor(this.grid.width / 2), 0)) {
+        let center_col = Math.floor(this.grid.width / 2);
+        if (this.grid.GetTile(center_col, 0)) {
             this.isGameOver = true;
+            console.log("game over");
             return;
         }
-        this.activeTile = new Tile(Math.floor(this.grid.width / 2), 0, 2);
-        this.grid.PlaceTile(this.activeTile);
-    }
+        this.activeTile = new Tile(2);
+        this.grid.SetTile(this.activeTile, center_col, 0);
+        // console.log("spawned new tile");
 
-    
-    MoveActiveTile(direction: "left" | "right") {
-        if (!this.activeTile) return;
-        let dx = direction === "left" ? -1 : 1;
-        if (this.grid.CanMoveTile(this.activeTile, dx, 0)) {
-            this.grid.MoveTile(this.activeTile, dx, 0);
-        }
     }
 
     OnKeyPressed(key:string)
@@ -61,10 +50,23 @@ export class GameManager {
             return;
     
         if(key == "ArrowLeft")
-            this.MoveActiveTile("left");
+        {
+            if(this.activeTile.x==0)
+                return;
+            let moveResult = this.grid.MoveTile(this.activeTile, -1, 0);
+            if(moveResult == TileFallResult.BLOCKED || moveResult == TileFallResult.MERGED)
+                this.SpawnTile();
+            
+        }
     
         if (key == "ArrowRight")
-            this.MoveActiveTile("right");
+            {
+                if(this.activeTile.x==Globals.nCols-1)
+                    return;
+                let moveResult = this.grid.MoveTile(this.activeTile, 1, 0);
+                if(moveResult == TileFallResult.BLOCKED || moveResult == TileFallResult.MERGED)
+                    this.SpawnTile();
+            }
     }
     
     draw() {

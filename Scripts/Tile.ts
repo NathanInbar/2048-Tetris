@@ -1,29 +1,12 @@
 import { Globals } from "./Globals.js";
 
 export class Tile {
-    x:number;
-    y:number;
+    x:number|null = null;
+    y:number|null = null;
     value: number;
-    isPlaced: boolean;
 
-    constructor(x:number, y:number, value: number) {
-        this.x=x;
-        this.y=y;
+    constructor(value: number) {
         this.value = value;
-        this.isPlaced = false;
-    }
-
-    move(dx:number, dy:number) : void {
-        this.x += dx;
-        this.y += dy;
-    }
-
-    merge(other:Tile): boolean {
-        if(this.value === other.value){ 
-            this.value*=2;
-            return true;
-        }
-        return false;
     }
 
     _getColor(): string {
@@ -44,9 +27,11 @@ export class Tile {
     }
     
     draw (ctx:CanvasRenderingContext2D): void {
+        if(this.x===null || this.y===null)
+            return;
         //draw square
         ctx.fillStyle = this._getColor();
-        ctx.fillRect((this.x)*Globals.squareSize, (this.x)*Globals.squareSize, Globals.squareSize, Globals.squareSize);
+        ctx.fillRect((this.x)*Globals.squareSize, (this.y)*Globals.squareSize, Globals.squareSize, Globals.squareSize);
     
         //draw number as text
         ctx.fillStyle = "#000";
