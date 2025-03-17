@@ -16,12 +16,15 @@ function start() {
     document.addEventListener('keydown', function (event) {
         gameManager.OnKeyPressed(event.key);
     });
+    document.addEventListener('mousedown', function (event) {
+        let rect = canvas.getBoundingClientRect();
+        gameManager.OnMouseDown({ x: event.clientX - rect.left, y: event.clientY - rect.top });
+    });
     setInterval(update, Globals.updateDelay); //start update loop
     requestAnimationFrame(drawUpdate);
 }
 function update() {
     gameManager.update();
-    gameManager.draw();
 }
 function drawUpdate() {
     gameManager.draw();
