@@ -1,4 +1,5 @@
 import { GameManager } from './GameManager.js';
+import { Globals } from './Globals.js';
 
 
 const _canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
@@ -11,8 +12,8 @@ if(!_ctx)
 const ctx: CanvasRenderingContext2D = _ctx;
 
 // Set canvas size
-canvas.width = 420;
-canvas.height = 420;
+canvas.width = Globals.canvasWidth;
+canvas.height = Globals.canvasHeight;
 
 const gameManager = new GameManager(ctx);
 
@@ -22,7 +23,7 @@ function start() {
         gameManager.OnKeyPressed(event.key);
     });
 
-    setInterval(update, 1000); // run update once per second
+    setInterval(update, Globals.updateDelay); //start update loop
     requestAnimationFrame(drawUpdate);
 }
 

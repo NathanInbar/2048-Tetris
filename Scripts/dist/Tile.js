@@ -1,21 +1,9 @@
 import { Globals } from "./Globals.js";
 export class Tile {
-    constructor(x, y, value) {
-        this.x = x;
-        this.y = y;
+    constructor(value) {
+        this.x = null;
+        this.y = null;
         this.value = value;
-        this.isPlaced = false;
-    }
-    move(dx, dy) {
-        this.x += dx;
-        this.y += dy;
-    }
-    merge(other) {
-        if (this.value === other.value) {
-            this.value *= 2;
-            return true;
-        }
-        return false;
     }
     _getColor() {
         const colors = {
@@ -34,9 +22,11 @@ export class Tile {
         return colors[this.value] || "#ccc"; // Default color if not in the map
     }
     draw(ctx) {
+        if (this.x === null || this.y === null)
+            return;
         //draw square
         ctx.fillStyle = this._getColor();
-        ctx.fillRect((this.x) * Globals.squareSize, (this.x) * Globals.squareSize, Globals.squareSize, Globals.squareSize);
+        ctx.fillRect((this.x) * Globals.squareSize, (this.y) * Globals.squareSize, Globals.squareSize, Globals.squareSize);
         //draw number as text
         ctx.fillStyle = "#000";
         ctx.font = "30px Arial";

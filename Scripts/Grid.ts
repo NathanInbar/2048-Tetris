@@ -1,6 +1,12 @@
 import { Tile } from "./Tile.js";
 import { Globals } from "./Globals.js";
 
+export const enum TileFallResult {
+    MOVED = 1, // successfully fell
+    MERGED = 2, // reached another tile that it can merge with
+    BLOCKED = 3 // cant fall anymore
+}
+
 export class Grid {
     width: number;
     height: number;
@@ -12,59 +18,151 @@ export class Grid {
         this.tiles = new Array(height).fill(null).map(() => new Array(width).fill(null));
     }
     
-    GetTile(x:number, y:number): Tile|null {
-        if (this.IsInBounds(x, y)) return this.tiles[y][x];
-        return null;
+    GetTile(x:number, y:number): Tile|null{
+        return this.tiles[y][x];
+    }       
+    
+    SetTile(tile:Tile, x:number, y:number) : void {
+        if(!this.IsInBounds(x,y))
+            throw Error(`cannot place tile at ${x},${y} -- out of bounds`);
+        if (this.IsOccupied(x,y))
+            throw Error(`cannot place tile at ${x},${y} -- spot occupied`);
+
+        //if tile had a previous position in the grid 
+        if(tile.x != null && tile.y != null)
+            this.tiles[tile.y][tile.x] = null; //clear it
+
+        tile.x = x;
+        tile.y = y;
+        this.tiles[y][x] = tile;
+
     }
 
     IsInBounds(x:number, y:number): boolean {
         return x >= 0 && x < this.width && y >= 0 && y < this.height;
     }
-
-    CanMoveTile(tile: Tile, dx: number, dy: number): boolean {
-        let newX = tile.x + dx;
-        let newY = tile.y + dy;
-        if (!this.IsInBounds(newX, newY)) return false;
-
-        let targetTile = this.GetTile(newX, newY);
-        return targetTile === null || targetTile.value === tile.value;
+    IsOccupied(x:number, y:number) : boolean {
+        return this.tiles[y][x] !== null;
     }
 
-    MoveTile(tile:Tile, dx:number, dy:number) {
-        let newX = tile.x + dx;
-        let newY = tile.y + dy;
+    MoveTile(tile:Tile, dx:number, dy:number) : TileFallResult {
+        if(tile.x === null || tile.y === null)
+            throw Error("tile has not been set on grid yet");
 
-        if (!this.CanMoveTile(tile, dx, dy)) return;
+        let new_x = tile.x+dx;
+        let new_y = tile.y+dy;
 
-        let targetTile = this.GetTile(newX, newY);
-        if (targetTile) {
-            if (tile.merge(targetTile)) {
-                this.tiles[tile.y][tile.x] = null;
-            }
-        } else {
-            this.tiles[tile.y][tile.x] = null;
-            tile.move(dx, dy);
-            this.tiles[newY][newX] = tile;
+        if(!this.IsInBounds(new_x, new_y))
+        {
+            console.log("blocked-bounds");
+            this.Cascade(tile);
+            return TileFallResult.BLOCKED;
         }
-    }
-
-    PlaceTile(tile:Tile) {
-        if (!this.IsInBounds(tile.x, tile.y) || this.tiles[tile.y][tile.x]) return;
-        this.tiles[tile.y][tile.x] = tile;
-    }
-
-    Collapse() {
-        for (let y = this.height - 2; y >= 0; y--) {
-            for (let x = 0; x < this.width; x++) {
-                let tile = this.GetTile(x, y);
-                if (tile && !tile.isPlaced) {
-                    while (this.CanMoveTile(tile, 0, 1)) {
-                        this.MoveTile(tile, 0, 1);
-                    }
-                }
+        if(this.IsOccupied(new_x, new_y))
+        {
+            if(this.CanMerge(tile, new_x, new_y))
+            {
+                // console.log("merge!");
+                this.MergeTiles(tile, this.GetTile(new_x, new_y)!);
+                return TileFallResult.MERGED; // merge tiles together
             }
+            return TileFallResult.BLOCKED;
         }
+
+        // move tile 
+        this.SetTile(tile, new_x, new_y);
+        return TileFallResult.MOVED;
     }
+
+    MergeTiles(old_tile:Tile, new_tile:Tile) : void {
+        if(old_tile.x === null || old_tile.y === null)
+            throw Error("tile has not been set on grid yet");
+
+        new_tile.value *= 2;
+
+        // remove old tile
+        this.tiles[old_tile.y][old_tile.x] = null;
+        
+        // try to make any tiles fall after merging
+    
+        // cascade around new_tile to see if we can merge again, chain reaction
+        this.Cascade(new_tile);
+    }
+
+    Cascade(center_tile:Tile) : void {
+        if(center_tile.x === null || center_tile.y === null)
+            throw Error("tile has not been set on grid yet");
+
+        //check if we can merge center with Down / Left / Right / Up neighbors
+
+        if(this.CanMerge(center_tile, center_tile.x, center_tile.y+1)) //down
+        {
+            this.MergeTiles(center_tile, this.GetTile(center_tile.x, center_tile.y+1)!);   
+            return;
+        }            
+        else if(this.CanMerge(center_tile, center_tile.x-1, center_tile.y)) //left
+        {
+            this.MergeTiles(center_tile, this.GetTile(center_tile.x-1, center_tile.y)!);
+            return;
+        }
+        else if(this.CanMerge(center_tile, center_tile.x+1, center_tile.y)) //right
+        {
+            this.MergeTiles(center_tile, this.GetTile(center_tile.x+1,center_tile.y)!);
+            return;
+        }
+        else if(this.CanMerge(center_tile, center_tile.x, center_tile.y-1))//up
+        {
+            this.MergeTiles(center_tile, this.GetTile(center_tile.x, center_tile.y+1)!);
+        }
+        
+        //cascade is finished
+    }
+
+    CanMerge(a:Tile, new_x:number, new_y:number) : boolean {
+        return this.IsInBounds(new_x, new_y) && this.IsOccupied(new_x,new_y) && (this.GetTile(new_x,new_y)!.value == a.value);
+    }
+
+    // CanMoveTile(tile: Tile, dx: number, dy: number): boolean {
+    //     let newX = tile.x + dx;
+    //     let newY = tile.y + dy;
+    //     if (!this.IsInBounds(newX, newY)) return false;
+
+    //     let targetTile = this.GetTile(newX, newY);
+    //     return targetTile === null || targetTile.value === tile.value;
+    // }
+
+    // MoveTile(tile:Tile, dx:number, dy:number) {
+    //     let newX = tile.x + dx;
+    //     let newY = tile.y + dy;
+
+    //     if (!this.CanMoveTile(tile, dx, dy)) return;
+
+    //     let targetTile = this.GetTile(newX, newY);
+    //     if (targetTile) {
+    //         if (tile.merge(targetTile)) {
+    //             this.tiles[tile.y][tile.x] = null;
+    //         }
+    //     } else {
+    //         this.tiles[tile.y][tile.x] = null;
+    //         tile.move(dx, dy);
+    //         this.tiles[newY][newX] = tile;
+    //     }
+    // }
+
+
+
+    // Collapse() {
+    //     for (let y = this.height - 2; y >= 0; y--) {
+    //         for (let x = 0; x < this.width; x++) {
+    //             let tile = this.GetTile(x, y);
+    //             if (tile && !tile.isPlaced) {
+    //                 while (this.CanMoveTile(tile, 0, 1)) {
+    //                     this.MoveTile(tile, 0, 1);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     draw (ctx: CanvasRenderingContext2D): void {
 

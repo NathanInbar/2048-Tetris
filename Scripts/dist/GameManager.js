@@ -8,53 +8,49 @@ export class GameManager {
         this.ctx = ctx;
         this.grid = new Grid(Globals.nCols, Globals.nRows);
         this.SpawnTile();
-        this.update = this.update.bind(this);
-        this.draw = this.draw.bind(this);
-
+        this.draw();
     }
     update() {
         if (this.isGameOver)
             return;
-        if (this.activeTile) {
-            if (this.grid.CanMoveTile(this.activeTile, 0, 1)) {
-                this.grid.MoveTile(this.activeTile, 0, 1);
-            }
-            else {
-                this.activeTile.isPlaced = true;
-                this.activeTile = null;
-                this.grid.Collapse();
-                this.SpawnTile();
-            }
-        }
+        if (!this.activeTile)
+            return;
+        let fallResult = this.grid.MoveTile(this.activeTile, 0, 1);
+        if (fallResult == 3 /* BLOCKED */ || fallResult == 2 /* MERGED */)
+            this.SpawnTile();
         this.draw();
     }
     SpawnTile() {
-        if (this.grid.GetTile(Math.floor(this.grid.width / 2), 0)) {
+        let center_col = Math.floor(this.grid.width / 2);
+        if (this.grid.GetTile(center_col, 0)) {
             this.isGameOver = true;
+            console.log("game over");
             return;
         }
-        this.activeTile = new Tile(Math.floor(this.grid.width / 2), 0, 2);
-        this.grid.PlaceTile(this.activeTile);
-    }
-    MoveActiveTile(direction) {
-        if (!this.activeTile)
-            return;
-        let dx = direction === "left" ? -1 : 1;
-        if (this.grid.CanMoveTile(this.activeTile, dx, 0)) {
-            this.grid.MoveTile(this.activeTile, dx, 0);
-        }
+        this.activeTile = new Tile(2);
+        this.grid.SetTile(this.activeTile, center_col, 0);
+        // console.log("spawned new tile");
     }
     OnKeyPressed(key) {
         if (this.isGameOver)
             return;
         if (this.activeTile === null)
             return;
-        if (key == "ArrowLeft")
-            this.MoveActiveTile("left");
-        if (key == "ArrowRight")
-            this.MoveActiveTile("right");
+        if (key == "ArrowLeft") {
+            if (this.activeTile.x == 0)
+                return;
+            let moveResult = this.grid.MoveTile(this.activeTile, -1, 0);
+            if (moveResult == 3 /* BLOCKED */ || moveResult == 2 /* MERGED */)
+                this.SpawnTile();
+        }
+        if (key == "ArrowRight") {
+            if (this.activeTile.x == Globals.nCols - 1)
+                return;
+            let moveResult = this.grid.MoveTile(this.activeTile, 1, 0);
+            if (moveResult == 3 /* BLOCKED */ || moveResult == 2 /* MERGED */)
+                this.SpawnTile();
+        }
     }
-
     draw() {
         this.ctx.clearRect(0, 0, Globals.canvasWidth, Globals.canvasHeight);
         this.grid.draw(this.ctx);
