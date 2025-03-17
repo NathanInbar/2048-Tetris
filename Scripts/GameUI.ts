@@ -1,3 +1,4 @@
+import { GameNotStarted } from "./GameNotStarted.js";
 import { GameOver } from "./GameOver.js";
 import { Globals } from "./Globals.js";
 import { NextTile } from "./NextTile.js";
@@ -9,6 +10,7 @@ export class GameUI {
     score:Score;
     nextTile:NextTile;
     gameOver:GameOver;
+    gameNotStarted:GameNotStarted;
     x:number;
     y:number;
 
@@ -17,6 +19,8 @@ export class GameUI {
         this.score = new Score(ctx);
         this.nextTile = new NextTile(ctx);
         this.gameOver = new GameOver(ctx);
+        this.gameNotStarted = new GameNotStarted(ctx);
+        this.gameNotStarted.enabled = true;
 
         this.x = Globals.squareSize*Globals.nCols;
         this.y = 0;
@@ -24,6 +28,10 @@ export class GameUI {
 
     AddScore(ds:number){
         this.score.value += ds;
+    }
+
+    GameStarted() {
+        this.gameNotStarted.enabled = false;
     }
 
     ResetScore(){
@@ -52,5 +60,8 @@ export class GameUI {
 
         //draw game over 
         this.gameOver.draw();
+
+        //draw game not started
+        this.gameNotStarted.draw();
     }
 }

@@ -1,6 +1,4 @@
 export class Globals {
-    static readonly debug:boolean = false;
-
     static readonly updateDelay:number = 400;
 
     static readonly canvasWidth:number = 600;
